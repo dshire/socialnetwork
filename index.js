@@ -44,7 +44,7 @@ app.get('/welcome', function(req, res){
 });
 
 app.post('/register', function(req, res){
-    if (req.body.first.length > 0 && req.body.last.length > 0 && req.body.email.length > 0 && req.body.pass.length > 0) {
+    if (req.body.first && req.body.last && req.body.email && req.body.pass) {
         bcrypt.hashPassword(req.body.pass).then(function(hash){
             return db.query(`INSERT INTO users (first, last, email, pass) VALUES ($1, $2, $3, $4) RETURNING id`, [req.body.first, req.body.last, req.body.email, hash]);
         }).then((result) => {
@@ -77,7 +77,7 @@ app.post('/register', function(req, res){
 });
 
 app.post('/login', (req, res) => {
-    if (req.body.email.length > 0 && req.body.pass.length > 0){
+    if (req.body.email && req.body.pass){
         var userInfo;
         return db.query(`SELECT * FROM users WHERE email = $1`, [req.body.email]).then((result) => {
             userInfo = result;
@@ -96,6 +96,12 @@ app.post('/login', (req, res) => {
                     error: 'Wrong mail or password, please try again!'
                 });
             }
+        }).catch((err) => {
+            console.log(err);
+            res.json({
+                success: false,
+                error: 'Wrong mail or password, please try again!'
+            });
         });
 
     } else {
