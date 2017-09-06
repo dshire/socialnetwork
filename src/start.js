@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Router, Route, Link, IndexRoute, hashHistory } from 'react-router';
-import { Login, Registration } from './auth';
+import { Login, Registration, Welcome } from './auth';
 
 
 const router = (
@@ -27,14 +27,7 @@ ReactDOM.render(
 );
 
 
-function Welcome(props) {
-    return (
-        <div>
-            <h1>Welcome to this Social Network!</h1>
-            {props.children}
-        </div>
-    )
-}
+
 
 function Logo() {
     return (

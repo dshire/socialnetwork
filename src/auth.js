@@ -6,6 +6,15 @@ export const Login = authWrap(LoginForm, '/login');
 export const Registration = authWrap(RegistrationForm, '/register');
 
 
+export function Welcome(props) {
+    return (
+        <div>
+            <h1>Welcome to this Social Network!</h1>
+            {props.children}
+        </div>
+    )
+}
+
 function authWrap(Component, url) {
     return class AuthForm extends React.Component {
         constructor(props) {
