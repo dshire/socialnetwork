@@ -2,15 +2,13 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
 import { Router, Route, Link, IndexRoute, hashHistory } from 'react-router';
-import { Register } from './register';
-import { Login } from './login';
-
+import { Login, Registration } from './auth';
 
 
 const router = (
     <Router history={hashHistory}>
         <Route path="/" component={Welcome}>
-            <IndexRoute component={Register} />
+            <IndexRoute component={Registration} />
             <Route path="/login" component={Login} />
   	    </Route>
     </Router>
@@ -29,8 +27,6 @@ ReactDOM.render(
 );
 
 
-
-
 function Welcome(props) {
     return (
         <div>
@@ -39,7 +35,6 @@ function Welcome(props) {
         </div>
     )
 }
-<Register />
 
 function Logo() {
     return (
