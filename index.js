@@ -44,20 +44,66 @@ app.get('/welcome', function(req, res){
 });
 
 app.post('/register', function(req, res){
-    // console.log(req.body);
-    bcrypt.hashPassword(req.body.pass).then(function(hash){
-        return db.query(`INSERT INTO users (first, last, email, pass) VALUES ($1, $2, $3, $4) RETURNING id`, [req.body.first, req.body.last, req.body.email, hash])
-    }).then((result) => {
-        req.session.user = { id: result.rows[0].id, first: req.body.first, last: req.body.last };
-        res.json({
-            success: true
+    if (req.body.first.length > 0 && req.body.last.length > 0 && req.body.email.length > 0 && req.body.pass.length > 0) {
+        bcrypt.hashPassword(req.body.pass).then(function(hash){
+            return db.query(`INSERT INTO users (first, last, email, pass) VALUES ($1, $2, $3, $4) RETURNING id`, [req.body.first, req.body.last, req.body.email, hash]);
+        }).then((result) => {
+            req.session.user = { id: result.rows[0].id, first: req.body.first, last: req.body.last };
+            res.json({
+                success: true,
+                first: req.session.user.first,
+                last: req.session.user.last
+            });
+        }).catch((err)=> {
+            console.log(err);
+            if (err.code == 23505) {
+                res.json({
+                    success: false,
+                    error: 'This Email address is already in use. Please choose a different one!'
+                });
+            } else
+            res.json({
+                success: false,
+                error: 'Something went wrong. Please try again!'
+            });
         });
-    }).catch((err)=> {
-        console.log(err);
+
+    } else {
         res.json({
-            success: false
+            success: false,
+            error: 'Please fill out all fields!'
         });
-    });
+    }
+});
+
+app.post('/login', (req, res) => {
+    if (req.body.email.length > 0 && req.body.pass.length > 0){
+        var userInfo;
+        return db.query(`SELECT * FROM users WHERE email = $1`, [req.body.email]).then((result) => {
+            userInfo = result;
+            return bcrypt.checkPassword(req.body.pass, result.rows[0].pass);
+        }).then((correctPass) => {
+            if (correctPass) {
+                req.session.user = { id: userInfo.rows[0].id, first: userInfo.rows[0].first, last: userInfo.rows[0].last };
+                res.json({
+                    success: true,
+                    first: req.session.user.first,
+                    last: req.session.user.last
+                });
+            } else  {
+                res.json({
+                    success: false,
+                    error: 'Wrong mail or password, please try again!'
+                });
+            }
+        });
+
+    } else {
+        res.json({
+            success: false,
+            error: 'Please fill out both fields!'
+        });
+    }
 });
 
 app.get('/logout', (req, res) => {
