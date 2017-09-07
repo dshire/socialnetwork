@@ -31,20 +31,20 @@ function authWrap(Component, url) {
             const {first, last, email, pass} = this.state;
             console.log('about to submit', { first, last, email, pass })
             axios.post(url, { first, last, email, pass })
-            .then(resp => {
-                const data = resp.data;
-                if (!data.success) {
-                    console.log(data)
-                    this.setState({
-                        error: data.error
-                    })
-                } else {
-                    location.replace('/');
-                }
-            })
+                .then(resp => {
+                    const data = resp.data;
+                    if (!data.success) {
+                        console.log(data)
+                        this.setState({
+                            error: data.error
+                        })
+                    } else {
+                        location.replace('/');
+                    }
+                })
         }
         render() {
-            return <Component error={this.state.error} handleChange={ e => this.handleChange(e)} submit={ e => this.submit(e)} />;
+            return <Component error={this.state.error} handleChange={ e => this.handleChange(e)} submit={ () => this.submit()} />;
         }
     }
 }
@@ -52,33 +52,33 @@ function authWrap(Component, url) {
 function LoginForm({ handleChange, submit, error }) {
     return (
         <div>
-        <h3>Log in</h3>
-        {error && <div className="error">{error}</div>}
-        <p>Email:</p>
-        <input required name="email" onChange= {e => handleChange(e)} />
-        <p>Password:</p>
-        <input required name="pass" type="password" onChange={e => handleChange(e)} />
-        <button onClick={e => submit()}>Log in</button>
-        <Link to={"/"}>Register now</Link>
-      	</div>
+            <h3>Log in</h3>
+            {error && <div className="error">{error}</div>}
+            <p>Email:</p>
+            <input required name="email" onChange= {e => handleChange(e)} />
+            <p>Password:</p>
+            <input required name="pass" type="password" onChange={e => handleChange(e)} />
+            <button onClick={submit}>Log in</button>
+            <Link to={"/"}>Register now</Link>
+        </div>
     );
 }
 
 function RegistrationForm({ handleChange, submit, error }) {
     return (
         <div>
-        <h3>Register</h3>
-        {error && <div className="error">{error}</div>}
-        <p>First Name:</p>
-        <input required name="first" onChange= {e => handleChange(e)} />
-        <p>Last Name:</p>
-        <input required name="last" onChange={e => handleChange(e)} />
-        <p>Email:</p>
-        <input required name="email" onChange= {e => handleChange(e)} />
-        <p>Password:</p>
-        <input required name="pass" type="password" onChange={e => handleChange(e)} />
-        <button onClick={e => submit()}>Register</button>
-        <Link to={"/login"}>Log in</Link>
-      	</div>
+            <h3>Register</h3>
+            {error && <div className="error">{error}</div>}
+            <p>First Name:</p>
+            <input required name="first" onChange= {e => handleChange(e)} />
+            <p>Last Name:</p>
+            <input required name="last" onChange={e => handleChange(e)} />
+            <p>Email:</p>
+            <input required name="email" onChange= {e => handleChange(e)} />
+            <p>Password:</p>
+            <input required name="pass" type="password" onChange={e => handleChange(e)} />
+            <button onClick={submit}>Register</button>
+            <Link to={"/login"}>Log in</Link>
+        </div>
     );
 }
