@@ -6,6 +6,7 @@ const bcrypt = require('./bcrypt.js');
 
 const bodyParser = require('body-parser');
 
+const fs = require('fs');
 var multer = require('multer');
 var uidSafe = require('uid-safe');
 var path = require('path');
@@ -42,7 +43,7 @@ if (process.env.NODE_ENV == 'production') {
 const client = knox.createClient({
     key: secrets.AWS_KEY,
     secret: secrets.AWS_SECRET,
-    bucket: 'reallydavid'
+    bucket: 'peppermountain'
 });
 
 var cookieSession = require('cookie-session');
@@ -147,6 +148,7 @@ app.post('/login', (req, res) => {
 });
 
 
+
 app.get('/user', (req,res) => {
     if (req.session.user){
         res.json({
@@ -164,6 +166,17 @@ app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
 });
+
+app.post('/picupload', uploader.single('pic'), uploadToS3, (req, res) => {
+    db.query(`UPDATE users SET pic = $1 WHERE id = $2`, [req.file.filename, req.session.user.id]);
+    req.session.user.pic = req.file.filename;
+    res.json({
+        success: true,
+        pic: req.file.filename
+    });
+});
+
+
 
 app.listen(8080, function() {
     console.log("I'm listening.");
@@ -189,6 +202,7 @@ function uploadToS3(req, res, next) {
             });
         } else {
             next();
+            fs.unlink(req.file.path);
         }
     });
 }

@@ -7,10 +7,13 @@ export class App extends React.Component{
         super(props);
         this.state = {};
         this.showUploader = this.showUploader.bind(this);
+        this.closeUploader = this.closeUploader.bind(this);
+        this.uploadProfilePic = this.uploadProfilePic.bind(this);
     }
     componentDidMount(){
-        axios.get('/user').then((data) => {
-            this.setState(data);
+        axios.get('/user').then((res) => {
+            var { url, pic, first, last} = res.data;
+            this.setState({url, pic, first, last});
         });
     }
     showUploader(){
@@ -18,34 +21,72 @@ export class App extends React.Component{
             uploaderShown: true
         });
     }
+    uploadProfilePic(e){
+        var newPic = new FormData;
+        newPic.append('pic', e.target.files[0]);
+
+        axios.post('/picupload', newPic)
+            .then(resp => {
+                const data = resp.data;
+                if (!data.success) {
+                    this.setState({
+                        error: 'Error. Try again.'
+                    });
+                } else {
+                    this.setState({
+                        uploaderShown: false,
+                        pic: data.pic,
+                        error: false
+                    });
+                }
+            });
+    }
+    closeUploader(){
+        this.setState({
+            uploaderShown: false
+        });
+    }
     render() {
-        if (!this.state.data) {
+        if (!this.state.pic) {
             return <div>Loading...</div>;
         }
         return(
             <div>
                 <Logo />
-                <PicLoader showUploader={this.showUploader} image={this.state.data.url + this.state.data.pic} first={this.state.data.first} last={this.state.data.last} />
+                <ProfilePic showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
 
-                {this.state.uploaderShown && <PicLoader setImage={this.setImage} closeUploader={this.closeUploader} />}
+                {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
             </div>
         );
     }
 }
 
-
 function PicLoader(props) {
     return(
-        <div>
-            <img src={props.image} alt={props.first + ' ' + props.last} title={props.first + ' ' + props.last} onClick={props.showUploader} />
+        <div id="shadow" onClick={props.closeUploader}>
+            <div id="pic-upload" onClick={ e => e.stopPropagation() }>
+                <h4>Change your Profile Picture?</h4>
+                <p id="x" onClick={props.closeUploader}>x</p>
+                <input type="file" id="img-select" accept="image/*" onChange={e => props.uploadProfilePic(e)} />
+                {props.error && <div className="error">{props.error}</div>}
+            </div>
         </div>
     );
 }
 
+function ProfilePic(props) {
+    return(
+        <div>
+            <img id="profile-pic" src={props.image} alt={props.first + ' ' + props.last} title={props.first + ' ' + props.last} onClick={props.showUploader} />
+        </div>
+    );
+}
+
+
 function Logo() {
     return (
         <div>
-            <img src='/images/jollyroger.gif' />
+            <img className="logo" src='/images/jollyroger.gif' />
         </div>
     )
 }
