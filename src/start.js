@@ -1,12 +1,24 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
-import { Router, Route, Link, IndexRoute, hashHistory } from 'react-router';
+import axios from './axios';
+import { Router, Route, Link, IndexRoute, hashHistory, browserHistory } from 'react-router';
 import { Login, Registration, Welcome } from './auth';
 import { App } from './app'
+import { Profile } from './profile';
+import {OtherProfile} from './otherprofile';
 
 
 const router = (
+    <Router history={browserHistory}>
+        <Route path='/' component={App}>
+            <IndexRoute component={Profile} />
+            <Route path='user/:id' component={OtherProfile} />
+        </Route>
+    </Router>
+);
+
+
+const welcomeRouter = (
     <Router history={hashHistory}>
         <Route path="/" component={Welcome}>
             <IndexRoute component={Registration} />
@@ -17,9 +29,9 @@ const router = (
 
 let comp;
 if (location.pathname == '/welcome') {
-    comp = router
+    comp = welcomeRouter
 } else {
-    comp = <App />
+    comp = router
 }
 
 ReactDOM.render(

@@ -20,11 +20,20 @@ body {
     margin: 20px;
 }
 
+#appContainer{
+    margin-top: 300px;
+}
+
+#appContainer #profile-pic {
+    position: static;
+    height: 400px;
+    width: 400px;
+}
 
 /* -------    MODAL -------  */
 
 #shadow {
-    position:absolute;
+    position:fixed;
     top: 0;
     left: 0;
     width: 100vw;

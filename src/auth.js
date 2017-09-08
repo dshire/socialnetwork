@@ -1,5 +1,5 @@
 import React from 'react';
-import axios from 'axios';
+import axios from './axios';
 import { Link } from 'react-router';
 
 export const Login = authWrap(LoginForm, '/login');
@@ -55,7 +55,7 @@ function LoginForm({ handleChange, submit, error }) {
             <h3>Log in</h3>
             {error && <div className="error">{error}</div>}
             <p>Email:</p>
-            <input required name="email" onChange= {e => handleChange(e)} />
+            <input required type="email" name="email" onChange= {e => handleChange(e)} />
             <p>Password:</p>
             <input required name="pass" type="password" onChange={e => handleChange(e)} />
             <button onClick={submit}>Log in</button>
@@ -74,7 +74,7 @@ function RegistrationForm({ handleChange, submit, error }) {
             <p>Last Name:</p>
             <input required name="last" onChange={e => handleChange(e)} />
             <p>Email:</p>
-            <input required name="email" onChange= {e => handleChange(e)} />
+            <input required type="email" name="email" onChange= {e => handleChange(e)} />
             <p>Password:</p>
             <input required name="pass" type="password" onChange={e => handleChange(e)} />
             <button onClick={submit}>Register</button>

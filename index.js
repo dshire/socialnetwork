@@ -5,14 +5,12 @@ const spicedPg = require('spiced-pg');
 const bcrypt = require('./bcrypt.js');
 
 const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
 
 const fs = require('fs');
 var multer = require('multer');
 var uidSafe = require('uid-safe');
 var path = require('path');
-
-// var csrf = require('csurf');
-// var csrfProtection = csrf();
 
 
 var diskStorage = multer.diskStorage({
@@ -46,18 +44,26 @@ const client = knox.createClient({
     bucket: 'peppermountain'
 });
 
+app.use(cookieParser());
+
 var cookieSession = require('cookie-session');
 app.use(cookieSession({
     secret: secrets.sessionSecret,
-    maxAge: 1000 * 60 * 60 * 24 * 14
+    maxAge: 1000 * 60 * 60 * 24 * 14,
+    secure: process.env.NODE_ENV == 'production'
 }));
 var db = spicedPg(`postgres:${secrets.dbUser}:${secrets.dbPass}@localhost:5432/socialnetwork`);
+
+var csurf = require('csurf');
+app.use(csurf());
+app.use(function(req, res, next){
+    res.cookie('spicedsocial', req.csrfToken());
+    next();
+});
 
 app.use(compression());
 
 app.use(bodyParser.json());
-
-app.use(require('cookie-parser')());
 
 
 if (process.env.NODE_ENV != 'production') {
@@ -176,7 +182,21 @@ app.post('/picupload', uploader.single('pic'), uploadToS3, (req, res) => {
     });
 });
 
+app.post('/updatebio', (req, res) => {
+    db.query(`UPDATE users SET bio = $1 WHERE id = $2`, [req.body.bio, req.session.user.id]);
+    req.session.user.bio = req.body.bio;
+    res.json({
+        success: true,
+        bio: req.body.bio
+    });
+});
 
+app.get('*', function(req, res) {
+    if (!req.session.user){
+        return res.redirect('/welcome');
+    }
+    res.sendFile(__dirname + '/index.html');
+});
 
 app.listen(8080, function() {
     console.log("I'm listening.");
