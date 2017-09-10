@@ -155,9 +155,10 @@ app.post('/login', (req, res) => {
 
 
 
-app.get('/user', (req,res) => {
+app.get('/api/user', (req,res) => {
     if (req.session.user){
         res.json({
+            id: req.session.user.id,
             first: req.session.user.first,
             last: req.session.user.last,
             bio: req.session.user.bio,
@@ -167,6 +168,27 @@ app.get('/user', (req,res) => {
     }
 });
 
+app.get('/user/:id',(req, res) => {
+    if (!req.session.user){
+        return res.redirect('/welcome');
+    }
+    res.sendFile(__dirname + '/index.html');
+});
+
+app.get('/api/user/:id', (req,res) => {
+    if (req.session.user){
+        return db.query(`SELECT * FROM users WHERE id = $1`, [req.params.id]).then((result) => {
+            res.json({
+                id: result.rows[0].id,
+                first: result.rows[0].first,
+                last: result.rows[0].last,
+                bio: result.rows[0].bio,
+                pic: result.rows[0].pic,
+                url: "http://peppermountain.s3.amazonaws.com/"
+            });
+        });
+    }
+});
 
 app.get('/logout', (req, res) => {
     req.session = null;

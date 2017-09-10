@@ -53,7 +53,7 @@ class Bio extends React.Component {
         } else if (!this.state.showBioEdit && !this.props.bio) {
             elem = <p onClick={this.editBio}>Add bio</p>;
         } else {
-            elem = <div><textarea name="bio" onChange={e => this.handleChange(e)} rows="6" cols="50"></textarea><button onClick={this.saveBio}>Save</button></div>;
+            elem = <div><textarea name="bio" onChange={e => this.handleChange(e)} rows="6" cols="50">{this.props.bio}</textarea><button onClick={this.saveBio}>Save</button></div>;
         }
         return(
             <div>

@@ -29,9 +29,9 @@ const welcomeRouter = (
 
 let comp;
 if (location.pathname == '/welcome') {
-    comp = welcomeRouter
+    comp = welcomeRouter;
 } else {
-    comp = router
+    comp = router;
 }
 
 ReactDOM.render(

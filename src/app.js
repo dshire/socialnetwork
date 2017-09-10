@@ -12,9 +12,9 @@ export class App extends React.Component{
         this.uploadProfilePic = this.uploadProfilePic.bind(this);
     }
     componentDidMount(){
-        axios.get('/user').then((res) => {
-            var { url, pic, first, last, bio} = res.data;
-            this.setState({  url, pic, first, last, bio });
+        axios.get('/api/user').then((res) => {
+            var { id, url, pic, first, last, bio} = res.data;
+            this.setState({  id, url, pic, first, last, bio });
         });
     }
     showUploader(){
@@ -54,7 +54,8 @@ export class App extends React.Component{
             showUploader: this.showUploader,
             url: this.state.url,
             pic: this.state.pic,
-            bio: this.state.bio
+            bio: this.state.bio,
+            id: this.state.id
         });
         if (!this.state.pic) {
             return <div>Loading...</div>;
