@@ -41,7 +41,7 @@ class Bio extends React.Component {
                         bio: res.data.bio
                     });
                 }
-            })
+            });
     }
     handleChange(e){
         this[e.target.name] = e.target.value;

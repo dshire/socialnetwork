@@ -12,6 +12,8 @@ var multer = require('multer');
 var uidSafe = require('uid-safe');
 var path = require('path');
 
+const ACCEPTED = 1, PENDING = 2, CANCELED = 3, TERMINATED = 4, REJECTED = 5;
+
 
 var diskStorage = multer.diskStorage({
     destination: function(req, file, callback) {
@@ -177,16 +179,64 @@ app.get('/user/:id',(req, res) => {
 
 app.get('/api/user/:id', (req,res) => {
     if (req.session.user){
-        return db.query(`SELECT * FROM users WHERE id = $1`, [req.params.id]).then((result) => {
-            res.json({
-                id: result.rows[0].id,
-                first: result.rows[0].first,
-                last: result.rows[0].last,
-                bio: result.rows[0].bio,
-                pic: result.rows[0].pic,
-                url: "http://peppermountain.s3.amazonaws.com/"
+        return db.query(`SELECT * FROM friends WHERE (send_id = $1 AND rec_id = $2) OR (rec_id = $1 AND send_id = $2)`, [req.session.user.id, req.params.id]).then(function(result){
+            let friendStatus = 0, recId = null;
+            if (result.rows[0]){
+                friendStatus = result.rows[0].status;
+                recId = result.rows[0].rec_id;
+            }
+            return db.query(`SELECT * FROM users WHERE id = $1`, [req.params.id]).then((result) => {
+                res.json({
+                    id: result.rows[0].id,
+                    first: result.rows[0].first,
+                    last: result.rows[0].last,
+                    bio: result.rows[0].bio,
+                    pic: result.rows[0].pic,
+                    url: "http://peppermountain.s3.amazonaws.com/",
+                    status: friendStatus,
+                    recId: recId
+                });
             });
+        }).catch(function(err) {
+            console.log(err);
         });
+    }
+});
+
+app.post('/api/friendUpdate/:id', (req,res) => {
+    if (req.session.user){
+        if (req.body.status == 0) {
+            db.query(`INSERT INTO friends (send_id, rec_id, status) VALUES ($1, $2, $3) RETURNING rec_id, status`, [req.session.user.id, req.params.id, 2]).then((result)=> {
+                res.json({
+                    recId: result.rows[0].rec_id,
+                    status: result.rows[0].status
+                });
+            });
+
+        } else if (req.body.status == 1 || req.body.status == 2) {
+            var newStatus;
+            if (req.body.status == 1) {
+                newStatus = 4;
+            } else if (req.body.status == 2 && req.body.recId == req.session.user.id) {
+                newStatus = 1;
+            } else if (req.body.status == 2 && req.body.recId == req.params.id) {
+                newStatus = 3;
+            }
+            db.query(`UPDATE friends SET status = $1 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [newStatus, req.session.user.id, req.params.id]).then((result) => {
+                res.json({
+                    recId: result.rows[0].rec_id,
+                    status: result.rows[0].status
+                });
+            });
+
+        } else {
+            db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [2, req.session.user.id, req.params.id]).then((result) => {
+                res.json({
+                    recId: result.rows[0].rec_id,
+                    status: result.rows[0].status
+                });
+            });
+        }
     }
 });
 
