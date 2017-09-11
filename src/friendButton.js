@@ -6,9 +6,16 @@ export class FriendButton extends React.Component {
         super(props);
         this.state = { status: this.props.status, recId: this.props.recId };
         this.friendUpdate = this.friendUpdate.bind(this);
+        this.reject = this.reject.bind(this);
     }
     friendUpdate(){
         axios.post('/api/friendUpdate/' + this.props.friendId, { status: this.state.status, recId: this.state.recId })
+            .then((res) => {
+                this.setState({ status: res.data.status, recId: res.data.recId });
+            });
+    }
+    reject(){
+        axios.post('/api/reject/' + this.props.friendId, { status: this.state.status, recId: this.state.recId })
             .then((res) => {
                 this.setState({ status: res.data.status, recId: res.data.recId });
             });
@@ -24,8 +31,15 @@ export class FriendButton extends React.Component {
         } else {
             friendButton = 'Add Friend';
         }
+        var rejectButton;
+        if (this.state.status == 2 && this.state.recId == this.props.id) {
+            rejectButton = <button onClick={this.reject}>Reject Friendship</button>;
+        }
         return(
-            <button onClick={this.friendUpdate}>{friendButton}</button>
+            <div>
+                <button onClick={this.friendUpdate}>{friendButton}</button>
+                {rejectButton}
+            </div>
         );
     }
 }

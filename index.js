@@ -240,6 +240,17 @@ app.post('/api/friendUpdate/:id', (req,res) => {
     }
 });
 
+app.post('/api/reject/:id', (req,res) => {
+    if (req.session.user){
+        db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [5, req.session.user.id, req.params.id]).then((result) => {
+            res.json({
+                recId: result.rows[0].rec_id,
+                status: result.rows[0].status
+            });
+        });
+    }
+});
+
 app.get('/logout', (req, res) => {
     req.session = null;
     res.redirect('/');
