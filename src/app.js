@@ -10,6 +10,7 @@ export class App extends React.Component{
         this.showUploader = this.showUploader.bind(this);
         this.closeUploader = this.closeUploader.bind(this);
         this.uploadProfilePic = this.uploadProfilePic.bind(this);
+        this.updateBio = this.updateBio.bind(this);
     }
     componentDidMount(){
         axios.get('/api/user').then((res) => {
@@ -47,6 +48,11 @@ export class App extends React.Component{
                 }
             });
     }
+    updateBio(newBio){
+        this.setState({
+            bio: newBio
+        });
+    }
     render() {
         const children = React.cloneElement(this.props.children, {
             first: this.state.first,
@@ -55,7 +61,8 @@ export class App extends React.Component{
             url: this.state.url,
             pic: this.state.pic,
             bio: this.state.bio,
-            id: this.state.id
+            id: this.state.id,
+            updateBio: this.updateBio
         });
         if (!this.state.pic) {
             return <div>Loading...</div>;

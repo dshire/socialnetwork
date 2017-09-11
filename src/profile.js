@@ -8,7 +8,7 @@ export function Profile(props) {
         <div style={{ width: 'auto', height: '400px' }}>
             <ProfilePic showUploader={props.showUploader} image={props.url + props.pic} first={props.first} last={props.last} />
             <h2>{props.first} {props.last}</h2>
-            <Bio bio={props.bio} />
+            <Bio bio={props.bio} updateBio={props.updateBio} />
         </div>
     );
 }
@@ -20,6 +20,7 @@ class Bio extends React.Component {
         this.editBio = this.editBio.bind(this);
         this.saveBio = this.saveBio.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.bio = this.props.bio;
     }
     editBio(){
         this.setState({
@@ -27,7 +28,7 @@ class Bio extends React.Component {
         });
     }
     saveBio(){
-        this.props.bio = this.bio;
+        this.props.updateBio(this.bio);
         this.setState({
             showBioEdit: false
         });
@@ -37,9 +38,6 @@ class Bio extends React.Component {
                     error: true
                 } else {
                     error: false
-                    this.setState({
-                        bio: res.data.bio
-                    });
                 }
             });
     }

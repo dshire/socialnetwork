@@ -211,6 +211,8 @@ app.post('/api/friendUpdate/:id', (req,res) => {
                     recId: result.rows[0].rec_id,
                     status: result.rows[0].status
                 });
+            }).catch(function(err) {
+                console.log(err);
             });
 
         } else if (req.body.status == 1 || req.body.status == 2) {
@@ -227,6 +229,8 @@ app.post('/api/friendUpdate/:id', (req,res) => {
                     recId: result.rows[0].rec_id,
                     status: result.rows[0].status
                 });
+            }).catch(function(err) {
+                console.log(err);
             });
 
         } else {
@@ -235,6 +239,8 @@ app.post('/api/friendUpdate/:id', (req,res) => {
                     recId: result.rows[0].rec_id,
                     status: result.rows[0].status
                 });
+            }).catch(function(err) {
+                console.log(err);
             });
         }
     }
@@ -247,6 +253,8 @@ app.post('/api/reject/:id', (req,res) => {
                 recId: result.rows[0].rec_id,
                 status: result.rows[0].status
             });
+        }).catch(function(err) {
+            console.log(err);
         });
     }
 });
@@ -257,7 +265,9 @@ app.get('/logout', (req, res) => {
 });
 
 app.post('/picupload', uploader.single('pic'), uploadToS3, (req, res) => {
-    db.query(`UPDATE users SET pic = $1 WHERE id = $2`, [req.file.filename, req.session.user.id]);
+    db.query(`UPDATE users SET pic = $1 WHERE id = $2`, [req.file.filename, req.session.user.id]).catch(function(err) {
+        console.log(err);
+    });
     req.session.user.pic = req.file.filename;
     res.json({
         success: true,
@@ -266,7 +276,9 @@ app.post('/picupload', uploader.single('pic'), uploadToS3, (req, res) => {
 });
 
 app.post('/updatebio', (req, res) => {
-    db.query(`UPDATE users SET bio = $1 WHERE id = $2`, [req.body.bio, req.session.user.id]);
+    db.query(`UPDATE users SET bio = $1 WHERE id = $2`, [req.body.bio, req.session.user.id]).catch(function(err) {
+        console.log(err);
+    });
     req.session.user.bio = req.body.bio;
     res.json({
         success: true,

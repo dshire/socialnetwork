@@ -12,7 +12,7 @@ export function Welcome(props) {
             <h1>Welcome to this Social Network!</h1>
             {props.children}
         </div>
-    )
+    );
 }
 
 function authWrap(Component, url) {
@@ -23,30 +23,28 @@ function authWrap(Component, url) {
             this.url = url;
         }
         handleChange(e){
-            this.setState({
-                [e.target.name]: e.target.value
-            })
+            this[e.target.name] = e.target.value;
         }
         submit() {
-            const {first, last, email, pass} = this.state;
-            console.log('about to submit', { first, last, email, pass })
+            const {first, last, email, pass} = this;
+            console.log('about to submit', { first, last, email, pass });
             axios.post(url, { first, last, email, pass })
                 .then(resp => {
                     const data = resp.data;
                     if (!data.success) {
-                        console.log(data)
+                        console.log(data);
                         this.setState({
                             error: data.error
-                        })
+                        });
                     } else {
                         location.replace('/');
                     }
-                })
+                });
         }
         render() {
-            return <Component error={this.state.error} handleChange={ e => this.handleChange(e)} submit={ () => this.submit()} />;
+            return <Component error={this.state.error} handleChange={ e => this.handleChange(e)} submit={ () => this.submit() } />;
         }
-    }
+    };
 }
 
 function LoginForm({ handleChange, submit, error }) {
