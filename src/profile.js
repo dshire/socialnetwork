@@ -20,7 +20,11 @@ class Bio extends React.Component {
         this.editBio = this.editBio.bind(this);
         this.saveBio = this.saveBio.bind(this);
         this.handleChange = this.handleChange.bind(this);
-        this.bio = this.props.bio;
+    }
+    componentDidMount() {
+        this.setState({
+            bio: this.props.bio
+        });
     }
     editBio(){
         this.setState({
@@ -28,30 +32,32 @@ class Bio extends React.Component {
         });
     }
     saveBio(){
-        this.props.updateBio(this.bio);
+        this.props.updateBio(this.state.bio);
         this.setState({
             showBioEdit: false
         });
-        axios.post('/updatebio', { bio: this.bio })
+        axios.post('/updatebio', { bio: this.state.bio })
             .then(res => {
                 if (!res.data.success) {
-                    error: true
+                    error: true;
                 } else {
-                    error: false
+                    error: false;
                 }
             });
     }
     handleChange(e){
-        this[e.target.name] = e.target.value;
+        this.setState({
+            bio: e.target.value
+        });
     }
     render(){
         let elem = null;
-        if (!this.state.showBioEdit && this.props.bio){
-            elem = <div>{this.props.bio}<p onClick={this.editBio}>Edit bio</p></div>;
-        } else if (!this.state.showBioEdit && !this.props.bio) {
+        if (!this.state.showBioEdit && this.state.bio){
+            elem = <div>{this.state.bio}<p onClick={this.editBio}>Edit bio</p></div>;
+        } else if (!this.state.showBioEdit && !this.state.bio) {
             elem = <p onClick={this.editBio}>Add bio</p>;
         } else {
-            elem = <div><textarea name="bio" onChange={e => this.handleChange(e)} rows="6" cols="50">{this.props.bio}</textarea><button onClick={this.saveBio}>Save</button></div>;
+            elem = <div><textarea name="bio" onChange={this.handleChange} value={this.state.bio} rows="6" cols="50" /><button onClick={this.saveBio}>Save</button></div>;
         }
         return(
             <div>
