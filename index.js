@@ -70,6 +70,9 @@ app.use(bodyParser.json());
 
 if (process.env.NODE_ENV != 'production') {
     app.use(require('./build'));
+    app.use('/bundle.js', require('http-proxy-middleware')({
+        target: 'http://localhost:8081'
+    }));
 }
 
 app.use(express.static('./public'));
@@ -155,7 +158,15 @@ app.post('/login', (req, res) => {
     }
 });
 
-
+app.get('/api/friends', (req, res) => {
+    if (req.session.user) {
+        db.query(`SELECT users.id, first, last, pic, status FROM friends JOIN users ON (status = ${PENDING} AND rec_id = $1 AND send_id = users.id) OR (status = ${ACCEPTED} AND rec_id = $1 AND send_id = users.id) OR (status = ${ACCEPTED} AND send_id = $1 AND rec_id = users.id)`, [req.session.user.id]).then((result) => {
+            res.json({
+                friends: result.rows
+            });
+        });
+    }
+});
 
 app.get('/api/user', (req,res) => {
     if (req.session.user){
@@ -180,10 +191,10 @@ app.get('/user/:id',(req, res) => {
 app.get('/api/user/:id', (req,res) => {
     if (req.session.user){
         return db.query(`SELECT * FROM friends WHERE (send_id = $1 AND rec_id = $2) OR (rec_id = $1 AND send_id = $2)`, [req.session.user.id, req.params.id]).then(function(result){
-            let friendStatus = 0, recId = null;
+            let friendStatus = 0, sendId = null;
             if (result.rows[0]){
                 friendStatus = result.rows[0].status;
-                recId = result.rows[0].rec_id;
+                sendId = result.rows[0].send_id;
             }
             return db.query(`SELECT * FROM users WHERE id = $1`, [req.params.id]).then((result) => {
                 res.json({
@@ -194,7 +205,7 @@ app.get('/api/user/:id', (req,res) => {
                     pic: result.rows[0].pic,
                     url: "http://peppermountain.s3.amazonaws.com/",
                     status: friendStatus,
-                    recId: recId
+                    sendId: sendId
                 });
             });
         }).catch(function(err) {
@@ -206,9 +217,9 @@ app.get('/api/user/:id', (req,res) => {
 app.post('/api/friendUpdate/:id', (req,res) => {
     if (req.session.user){
         if (req.body.status == 0) {
-            db.query(`INSERT INTO friends (send_id, rec_id, status) VALUES ($1, $2, $3) RETURNING rec_id, status`, [req.session.user.id, req.params.id, 2]).then((result)=> {
+            db.query(`INSERT INTO friends (send_id, rec_id, status) VALUES ($1, $2, $3) RETURNING send_id, status`, [req.session.user.id, req.params.id, 2]).then((result)=> {
                 res.json({
-                    recId: result.rows[0].rec_id,
+                    sendId: result.rows[0].send_id,
                     status: result.rows[0].status
                 });
             }).catch(function(err) {
@@ -219,14 +230,14 @@ app.post('/api/friendUpdate/:id', (req,res) => {
             var newStatus;
             if (req.body.status == 1) {
                 newStatus = 4;
-            } else if (req.body.status == 2 && req.body.recId == req.session.user.id) {
-                newStatus = 1;
-            } else if (req.body.status == 2 && req.body.recId == req.params.id) {
+            } else if (req.body.status == 2 && req.body.sendId == req.session.user.id) {
                 newStatus = 3;
+            } else if (req.body.status == 2 && req.body.sendId == req.params.id) {
+                newStatus = 1;
             }
-            db.query(`UPDATE friends SET status = $1 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [newStatus, req.session.user.id, req.params.id]).then((result) => {
+            db.query(`UPDATE friends SET status = $1 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING send_id, status`, [newStatus, req.session.user.id, req.params.id]).then((result) => {
                 res.json({
-                    recId: result.rows[0].rec_id,
+                    sendId: result.rows[0].send_id,
                     status: result.rows[0].status
                 });
             }).catch(function(err) {
@@ -234,9 +245,9 @@ app.post('/api/friendUpdate/:id', (req,res) => {
             });
 
         } else {
-            db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [2, req.session.user.id, req.params.id]).then((result) => {
+            db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (send_id = $2 AND rec_id = $3) OR (rec_id = $2 AND send_id = $3) RETURNING send_id, status`, [2, req.session.user.id, req.params.id]).then((result) => {
                 res.json({
-                    recId: result.rows[0].rec_id,
+                    sendId: result.rows[0].send_id,
                     status: result.rows[0].status
                 });
             }).catch(function(err) {
@@ -247,10 +258,11 @@ app.post('/api/friendUpdate/:id', (req,res) => {
 });
 
 app.post('/api/reject/:id', (req,res) => {
+    console.log('rejecting');
     if (req.session.user){
-        db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (rec_id = $2 AND send_id = $3) RETURNING rec_id, status`, [5, req.session.user.id, req.params.id]).then((result) => {
+        db.query(`UPDATE friends SET status = $1, send_id = $2, rec_id = $3 WHERE (rec_id = $2 AND send_id = $3) RETURNING send_id, status`, [5, req.session.user.id, req.params.id]).then((result) => {
             res.json({
-                recId: result.rows[0].rec_id,
+                sendId: result.rows[0].send_id,
                 status: result.rows[0].status
             });
         }).catch(function(err) {

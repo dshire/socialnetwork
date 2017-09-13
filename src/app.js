@@ -71,8 +71,11 @@ export class App extends React.Component{
             <div>
                 <div>
                     <Logo />
-                    <ProfilePic showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
-                    {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
+                    <div>
+                        <ProfilePic showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
+                        {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
+                        <Link to={'/friends'}>Friends</Link>
+                    </div>
                 </div>
                 <div id="appContainer">
                     {children}

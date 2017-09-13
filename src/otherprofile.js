@@ -17,7 +17,7 @@ export class OtherProfile extends React.Component {
         axios.get('/api/user/' + this.props.params.id).then((res) => {
             var { url, pic, first, last, bio} = res.data;
             this.status = res.data.status;
-            this.recId = res.data.recId;
+            this.sendId = res.data.sendId;
             this.setState({ url, pic, first, last, bio });
         });
     }
@@ -28,7 +28,7 @@ export class OtherProfile extends React.Component {
                 <img id="profile-pic" src={this.src} alt={this.state.first + ' ' + this.state.last} title={this.state.first + ' ' + this.state.last}/>
                 <h2>{this.state.first} {this.state.last}</h2>
                 <p>{this.state.bio}</p>
-                {this.state.first && <FriendButton status={this.status} recId={this.recId} id={this.props.id} friendId={this.props.params.id} />}
+                {this.state.first && <FriendButton status={this.status} sendId={this.sendId} id={this.props.id} friendId={this.props.params.id} />}
             </div>
         );
     }

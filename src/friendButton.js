@@ -4,35 +4,35 @@ import axios from './axios';
 export class FriendButton extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { status: this.props.status, recId: this.props.recId };
+        this.state = { status: this.props.status, sendId: this.props.sendId };
         this.friendUpdate = this.friendUpdate.bind(this);
         this.reject = this.reject.bind(this);
     }
     friendUpdate(){
-        axios.post('/api/friendUpdate/' + this.props.friendId, { status: this.state.status, recId: this.state.recId })
+        axios.post('/api/friendUpdate/' + this.props.friendId, { status: this.state.status, sendId: this.state.sendId })
             .then((res) => {
-                this.setState({ status: res.data.status, recId: res.data.recId });
+                this.setState({ status: res.data.status, sendId: res.data.sendId });
             });
     }
     reject(){
-        axios.post('/api/reject/' + this.props.friendId, { status: this.state.status, recId: this.state.recId })
+        axios.post('/api/reject/' + this.props.friendId, {})
             .then((res) => {
-                this.setState({ status: res.data.status, recId: res.data.recId });
+                this.setState({ status: res.data.status, sendId: res.data.sendId });
             });
     }
     render(){
         var friendButton;
         if (this.state.status == 1) {
             friendButton = 'End Friendship';
-        } else if (this.state.status == 2 && this.state.recId == this.props.id) {
-            friendButton = 'Accept Friendship';
-        } else if (this.state.status == 2 && this.state.recId == this.props.friendId) {
+        } else if (this.state.status == 2 && this.state.sendId == this.props.id) {
             friendButton = 'Cancel Friend Request';
+        } else if (this.state.status == 2 && this.state.sendId == this.props.friendId) {
+            friendButton = 'Accept Friendship';
         } else {
             friendButton = 'Add Friend';
         }
         var rejectButton;
-        if (this.state.status == 2 && this.state.recId == this.props.id) {
+        if (this.state.status == 2 && this.state.sendId == this.props.friendId) {
             rejectButton = <button onClick={this.reject}>Reject Friendship</button>;
         }
         return(
