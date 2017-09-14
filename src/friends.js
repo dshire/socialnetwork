@@ -14,16 +14,8 @@ class Friends extends React.Component {
         if(!friends || !pending) {
             return null;
         }
-        const friendList = (
-            <div>
-                {friends.map(user => <div><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/><h3>{user.first} {user.last} </h3><button onClick={()=> this.props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button></div>)}
-            </div>
-        );
-        const pendList = (
-            <div>
-                {pending.map(user => <div><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/><h3>{user.first} {user.last} </h3><button onClick={()=> this.props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button><button onClick={()=> this.props.reject(user.id)}>Reject Friendship Request</button></div>)}
-            </div>
-        );
+        const friendList = listFriends(friends, this.props);
+        const pendList = listFriends(pending, this.props);
 
         return (
             <div id="friendsList">
@@ -42,10 +34,10 @@ class Friends extends React.Component {
     }
 }
 
-function listFriends(obj) {
+function listFriends(obj, props) {
     return (
         <div>
-            {obj.map(user => <div><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/><h3>{user.first} {user.last} </h3><button onClick={()=> this.props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button></div>)}
+            {obj.map(user => <div><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/><h3>{user.first} {user.last} </h3><button onClick={()=> props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button>{(user.status == 2) && <button onClick={()=> props.reject(user.id)}>Reject Friendship Request</button>}</div>)}
         </div>
     );
 }
