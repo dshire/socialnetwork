@@ -28,10 +28,32 @@ export default function(state = {}, action) {
             })
         });
     }
+    if (action.type == 'STORE_ONLINE') {
+        state = Object.assign({}, state, {
+            onlineUsers: action.onlineUsers
+        });
+    }
+    if (action.type == 'USER_JOINED' && state.onlineUsers) {
+        if (state.onlineUsers && !state.onlineUsers.find(user => user.id == action.userJoined.id)) {
+
+            state = Object.assign({}, state, {
+                onlineUsers: state.onlineUsers ? [ ...state.onlineUsers, action.userJoined] : [action.userJoined]
+            });
+        }
+    }
+    if (action.type == 'USER_LEFT'){
+        console.log('user left reducer', action.userLeft);
+        state = Object.assign({}, state, {
+            onlineUsers: state.onlineUsers.filter(function(user){
+                if(user.id == action.userLeft) {
+                    return undefined;
+                }
+                return user;
+            })
+        });
+    }
     return state;
 }
-
-
 
 function newStatus(oldStatus){
     if (oldStatus == 1) {

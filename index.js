@@ -1,5 +1,8 @@
 const express = require('express');
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
+
 const compression = require('compression');
 const spicedPg = require('spiced-pg');
 const bcrypt = require('./bcrypt.js');
@@ -297,6 +300,74 @@ app.post('/updatebio', (req, res) => {
     });
 });
 
+
+
+// |-----------  SOCKET.IO MAGIC ------------------->
+
+
+const loggedInUsers = [];
+app.get('/connected/:socketId', (req, res) => {
+    if (req.session.user){
+        if (!loggedInUsers.some(checkOnlineId) && io.sockets.sockets[req.params.socketId]) {
+            loggedInUsers.push({
+                userId: req.session.user.id,
+                userSocket: req.params.socketId
+            });
+
+            var loggedInIds = loggedInUsers.map(function(user) {
+                return user.userId;
+            });
+
+            db.query(`SELECT id, first, last, pic FROM users WHERE id = ANY($1)`, [loggedInIds]).then(function(result) {
+                io.sockets.sockets[req.params.socketId].emit('onlineUsers', {
+                    onlineUsers: result.rows
+                });
+                var userObj = { id: req.session.user.id, first: req.session.user.first, last: req.session.user.last, pic: req.session.user.pic };
+
+                io.sockets.emit('userJoined', {
+                    newOnline: userObj
+                });
+            });
+
+
+        }
+    }
+
+
+    function checkOnlineId(user) {
+        return user.userSocket === req.params.socketId;
+    }
+});
+
+
+io.on('connection', function(socket) {
+    console.log(`socket with the id ${socket.id} is now connected`);
+    socket.on('disconnect', function(){
+        console.log(`socket with the id ${socket.id} is now disconnected`);
+        var index = loggedInUsers.findIndex(user => user.userSocket === socket.id);
+        var userId;
+        if (index > -1) {
+            userId = loggedInUsers[index].userId;
+            loggedInUsers.splice(index, 1);
+        }
+
+        if (index > -1 && !loggedInUsers.some((user) => { return user.userId === userId; })) {
+            socket.broadcast.emit('userLeft', {
+                userLeft: userId
+            });
+        }
+    });
+
+    socket.emit('welcome', {
+        message: 'Welcome to our server. It is nice to have you here.'
+    });
+
+});
+
+
+// <-----------  END OF SOCKET.IO MAGIC  -------------------|
+
+
 app.get('*', function(req, res) {
     if (!req.session.user){
         return res.redirect('/welcome');
@@ -304,11 +375,11 @@ app.get('*', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.listen(8080, function() {
+
+
+server.listen(8080, function() {
     console.log("I'm listening.");
 });
-
-
 
 function uploadToS3(req, res, next) {
     // console.log(req);

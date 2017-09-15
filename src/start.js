@@ -12,8 +12,10 @@ import { App } from './app';
 import { Profile } from './profile';
 import {OtherProfile} from './otherprofile';
 import Friends from './friends';
+import Online from './online';
 
-const store = createStore(reducer, composeWithDevTools(applyMiddleware(reduxPromise)));
+
+export const store = createStore(reducer, composeWithDevTools(applyMiddleware(reduxPromise)));
 
 const router = (
     <Provider store={store}>
@@ -22,6 +24,7 @@ const router = (
                 <IndexRoute component={Profile} />
                 <Route path='user/:id' component={OtherProfile} />
                 <Route path='/friends' component ={Friends} />
+                <Route path='/online' component={Online} />
             </Route>
         </Router>
     </Provider>

@@ -28,3 +28,25 @@ export function reject(id){
             };
         });
 }
+
+export function storeOnlineUsers(data) {
+    return {
+        type: 'STORE_ONLINE',
+        onlineUsers: data.onlineUsers
+    };
+}
+
+export function userJoined(data) {
+    return {
+        type: 'USER_JOINED',
+        userJoined: data.newOnline
+    };
+}
+
+export function userLeft(data) {
+    console.log('user left action' , data.userLeft);
+    return {
+        type: 'USER_LEFT',
+        userLeft: data.userLeft
+    };
+}

@@ -1,6 +1,7 @@
 import React from 'react';
 import axios from './axios';
 import { Link } from 'react-router';
+import { getSocket } from './socket';
 
 
 export class App extends React.Component{
@@ -54,6 +55,7 @@ export class App extends React.Component{
         });
     }
     render() {
+        getSocket();
         const children = React.cloneElement(this.props.children, {
             first: this.state.first,
             last: this.state.last,
@@ -75,6 +77,7 @@ export class App extends React.Component{
                         <ProfilePic showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
                         {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
                         <Link to={'/friends'}>Friends</Link>
+                        <Link to={'/online'}>See who's online!</Link>
                     </div>
                 </div>
                 <div id="appContainer">
