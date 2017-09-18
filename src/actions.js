@@ -36,6 +36,13 @@ export function storeOnlineUsers(data) {
     };
 }
 
+export function storeChatHistory(data) {
+    return {
+        type: 'STORE_CHAT',
+        chatHistory: data
+    };
+}
+
 export function userJoined(data) {
     return {
         type: 'USER_JOINED',
@@ -48,5 +55,12 @@ export function userLeft(data) {
     return {
         type: 'USER_LEFT',
         userLeft: data.userLeft
+    };
+}
+
+export function newMessage(data) {
+    return {
+        type: 'NEW_MESSAGE',
+        newMsg: data
     };
 }

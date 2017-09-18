@@ -33,6 +33,16 @@ export default function(state = {}, action) {
             onlineUsers: action.onlineUsers
         });
     }
+    if (action.type == 'STORE_CHAT'){
+        state = Object.assign({}, state, {
+            chatHistory: action.chatHistory
+        });
+    }
+    if (action.type == 'NEW_MESSAGE' && state.chatHistory){
+        state = Object.assign({}, state, {
+            chatHistory: state.chatHistory ? [ ...state.chatHistory, action.newMsg] : [action.newMsg]
+        });
+    }
     if (action.type == 'USER_JOINED' && state.onlineUsers) {
         if (state.onlineUsers && !state.onlineUsers.find(user => user.id == action.userJoined.id)) {
 

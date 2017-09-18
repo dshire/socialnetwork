@@ -1,3 +1,9 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 body {
     background-color: #466f12;
 }
@@ -9,6 +15,7 @@ body {
     width: 200px;
     height: 200px;
     margin: 20px;
+    object-fit: cover;
 }
 
 .logo {
@@ -63,4 +70,64 @@ body {
     top: -5px;
     right: 15px;
     cursor: pointer;
+}
+
+
+/* ------------------  CHAT -------------- */
+
+#chat {
+    margin-bottom: 20px;
+}
+
+#chat-window {
+    padding: 5px 0;
+    width: 90vw;
+    height: 40vh;
+    background-color: white;
+    border: solid black 2px;
+    border-radius: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    overflow-y: scroll;
+}
+
+#chat-input {
+
+    margin-left: auto;
+    margin-right: auto;
+    width: 80vw;
+}
+
+#chat-input input {
+    padding: 4px;
+    width: 85%;
+}
+#chat-input button{
+    width: 15%;
+    border: none;
+    background: #34d07c;
+    padding: 5px;
+}
+
+.message {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+.message:nth-child(odd) {
+    background: #b7f5af;
+}
+
+.chat-pic {
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+    display: inline-block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+}
+
+.chat-text {
+    display: inline-block;
+    margin-left: 5px;
 }

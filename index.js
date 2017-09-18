@@ -14,6 +14,7 @@ const fs = require('fs');
 var multer = require('multer');
 var uidSafe = require('uid-safe');
 var path = require('path');
+var moment = require('moment');
 
 const ACCEPTED = 1, PENDING = 2, CANCELED = 3, TERMINATED = 4, REJECTED = 5;
 
@@ -304,7 +305,7 @@ app.post('/updatebio', (req, res) => {
 
 // |-----------  SOCKET.IO MAGIC ------------------->
 
-
+const chatHistory = [];
 const loggedInUsers = [];
 app.get('/connected/:socketId', (req, res) => {
     if (req.session.user){
@@ -361,6 +362,42 @@ io.on('connection', function(socket) {
     socket.emit('welcome', {
         message: 'Welcome to our server. It is nice to have you here.'
     });
+    socket.emit('chat', chatHistory);
+
+    socket.on('chatMsg', (msg) => {
+
+        var index = loggedInUsers.findIndex(user => user.userSocket === socket.id);
+        if (index > -1) {
+            var userId = loggedInUsers[index].userId;
+            db.query(`SELECT * FROM users WHERE id = $1`, [userId]).then((result) => {
+
+                chatHistory.push({
+                    message: msg,
+                    first: result.rows[0].first,
+                    last: result.rows[0].last,
+                    pic: result.rows[0].pic,
+                    id: result.rows[0].id,
+                    date: moment().format('MMM D/YY, h:mm:ss a')
+                });
+                if (chatHistory.length > 10) {
+                    chatHistory.splice(0, 1);
+                }
+
+                io.emit('newMsg', {
+                    message: msg,
+                    first: result.rows[0].first,
+                    last: result.rows[0].last,
+                    pic: result.rows[0].pic,
+                    id: result.rows[0].id,
+                    date: moment().format('MMM D/YY, h:mm:ss a')
+                });
+
+            }).catch(function(err) {
+                console.log(err);
+            });
+        }
+    });
+
 
 });
 

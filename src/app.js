@@ -78,6 +78,7 @@ export class App extends React.Component{
                         {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
                         <Link to={'/friends'}>Friends</Link>
                         <Link to={'/online'}>See who's online!</Link>
+                        <Link to={'/chat'}>Join Chat</Link>
                     </div>
                 </div>
                 <div id="appContainer">
