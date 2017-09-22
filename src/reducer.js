@@ -52,7 +52,6 @@ export default function(state = {}, action) {
         }
     }
     if (action.type == 'USER_LEFT'){
-        console.log('user left reducer', action.userLeft);
         state = Object.assign({}, state, {
             onlineUsers: state.onlineUsers.filter(function(user){
                 if(user.id == action.userLeft) {
@@ -60,6 +59,66 @@ export default function(state = {}, action) {
                 }
                 return user;
             })
+        });
+    }
+    if (action.type == 'PRIVATE_MSG'){
+        console.log('action.chatId is: ' + action.chatId);
+        state = Object.assign({}, state, {
+            chats: Object.assign({}, state.chats, {[action.chatId]: state.chats[action.chatId] ? [ ...state.chats[action.chatId], action.privateMsg] : [action.privateMsg]})
+        });
+    }
+    if (action.type == 'GET_CHAT'){
+        console.log(action.recId);
+        var chats = state.chats ? Object.assign({}, state.chats, {[action.chatId]: action.chat }) : Object.assign({}, {[action.chatId]: action.chat });
+        return Object.assign({}, state, {currentChat: action.chatId}, { chats }, { recId: action.recId });
+    }
+    if (action.type == 'MAIN_CHAT') {
+        state = Object.assign({}, state, {
+            currentChat: ''
+        });
+    }
+    if (action.type == 'CHAT_ROOMS') {
+        state = Object.assign({}, state, {
+            chatRooms: action.data
+        });
+    }
+    if(action.type == 'GET_CHAT_ROOM') {
+        state = Object.assign({}, state, {
+            currentChat: action.id
+        });
+    }
+    if(action.type == "NEW_ROOM_MSG") {
+        var index = state.chatRooms.findIndex(e => e.id == action.room);
+        state = Object.assign({}, state, {
+            chatRooms: state.chatRooms.map(function(room, i) {
+                if (i == index) {
+                    return Object.assign({}, room, {
+                        messages: [...room.messages, action.data]
+                    });
+                }
+                return room;
+            })
+        });
+    }
+    if (action.type == "SEARCH") {
+        state = Object.assign({}, state, {
+            searchResults: action.searchResults
+        });
+    }
+    if (action.type == "CLEAR_SEARCH") {
+        state = Object.assign({}, state, {
+            searchResults: null
+        });
+    }
+    if (action.type == "MSG_NOTIFICATION") {
+        state = Object.assign({}, state, {
+            msgNotif: state.msgNotif ? [ ...state.msgNotif, action.id ] : [ action.id ]
+        });
+    }
+    if (action.type == "MSG_READ") {
+        var newMsgArr = state.msgNotif.filter(elem => elem != action.id);
+        state = Object.assign({}, state, {
+            msgNotif: state.msgNotif ? newMsgArr : []
         });
     }
     return state;

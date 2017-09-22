@@ -13,7 +13,9 @@ import { Profile } from './profile';
 import {OtherProfile} from './otherprofile';
 import Friends from './friends';
 import Online from './online';
+import MainChat from './mainchat';
 import Chat from './chat';
+
 
 
 export const store = createStore(reducer, composeWithDevTools(applyMiddleware(reduxPromise)));
@@ -26,7 +28,10 @@ const router = (
                 <Route path='user/:id' component={OtherProfile} />
                 <Route path='/friends' component ={Friends} />
                 <Route path='/online' component={Online} />
-                <Route path='/chat' component={Chat} />
+                <Route path='/chat' component={Chat}>
+                    <IndexRoute component={MainChat} />
+                    <Route path='/chat/:id' component={MainChat} />
+                </Route>
             </Route>
         </Router>
     </Provider>

@@ -2,39 +2,196 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Source Sans Pro', sans-serif;
+}
+@font-face {
+font-family: "FUTURA";
+src: url("/Futura-Medium.woff");
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
 }
 
 body {
-    background-color: #466f12;
+
+    background-color: rgb(204, 242, 199);
+    background: repeating-linear-gradient(
+    -45deg,
+    rgba(183, 245, 175, 0.2),
+    rgba(183, 245, 175, 0.2) 10px,
+    rgba(52, 208, 124, 0.3) 10px,
+    rgba(52, 208, 124, 0.3) 20px
+    ),
+    url("/images/school_photo.jpg");
+    background-size: cover;
+}
+
+
+ /*------------ NAV-BAR -----------*/
+
+.nav-bar {
+    margin: 20px;
+    background: repeating-linear-gradient(
+    45deg,
+    rgba(205, 255, 199, 0.4),
+    rgba(205, 255, 199, 0.4), 10px,
+    rgba(91, 227, 154, 0.6) 10px,
+    rgba(91, 227, 154, 0.6) 20px
+    ),
+    url("/images/old_map.png");
+
+    box-shadow: 0px 7px 8px 0px rgba(0,0,0,0.75);
+    display:flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    border: solid #FFF 2px;
+}
+
+.nav-bar * {
+    display:inline-block;
+    text-decoration: none;
+}
+
+.nav-bar a {
+    font-size: 18px;
+    color:inherit;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.4);
+    padding: 1px 8px;
+    border: rgb(183, 245, 175) 1px solid;
+    margin: 5px;
+}
+
+
+
+.nav-bar a:hover {
+    background-color: rgba(140, 137, 137, 0.4);
+    cursor: pointer;
+}
+
+#logo-container {
+    position: relative;
+}
+.logo {
+    max-width: 100px;
+    max-height: 100px;
+    margin: 10px;
+    border: rgb(183, 245, 175) 2px solid;
+}
+#green-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height:100%;
+    color: rgb(134, 222, 175);
+    padding: 12px;
+    /*border: solid black 0.5px;*/
+    text-align: center;
+}
+#tinasn {
+    font-family: 'FUTURA';
+    font-size: 36px;
+
+}
+
+.search-users-p, .search {
+    display: block;
+}
+
+.user-info * {
+    position: relative;
+    display: block;
 }
 
 #profile-pic {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    width: 200px;
-    height: 200px;
-    margin: 20px;
+    width: 100px;
+    height:100px;
+    margin: 10px;
     object-fit: cover;
+    border: rgb(183, 245, 175) 2px solid;
+    cursor: pointer;
 }
 
-.logo {
+#pic-user-name {
+    font-size: 14px;
+    background-color: rgba(169, 250, 206, 0.77);
+    border-radius: 5px;
+
+    padding: 1px 1px;
+    text-align: center;
+    margin-bottom: 5px;
+}
+#pic-user-name:hover {
+    background-color: rgba(100, 162, 128, 0.77);
+}
+
+/*----------   SEARCH  -----------*/
+
+.search-pic {
+    height: 30px;
+    width: 30px;
+    object-fit: cover;
+    display: inline-block;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    margin-right: 5px;
+    margin-left: 5px;
+    display: inline-block;
+    border: rgb(183, 245, 175) 0.5px solid;
+}
+
+.search {
+    position: relative;
+}
+
+.search-results {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    max-width: 200px;
-    max-height: 200px;
-    margin: 20px;
+    background-color: white;
+    top: 21.5px;
+    left: 0.5px;
+    width: 151.5px;
+    text-align: left;
 }
 
-#appContainer{
-    margin-top: 300px;
+.search-results a {
+    font-size: 14px;
+    border-radius: 5px;
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 1px 8px;
+    border: rgb(183, 245, 175) 1px solid;
+    margin: 5px;
+    width: 130px;
 }
 
-#appContainer #profile-pic {
-    position: static;
-    height: 400px;
-    width: 400px;
+.search-results a:hover {
+    background-color: rgba(140, 137, 137, 0.9);
+}
+
+.each-search-result {
+    display: block;
+}
+
+/*.each-search-result:nth-child(odd) {
+    background: rgba(88, 213, 146, 0.95);
+}*/
+
+.search-name {
+    display: inline-block;
+
+}
+
+.search-flex-box {
+    display: flex;
+    flex-flow: nowrap row;
+    justify-content: flex-start;
+    align-items: center;
 }
 
 /* -------    MODAL -------  */
@@ -51,62 +208,258 @@ body {
 
 #pic-upload {
     position: absolute;
-    top: 30%;
-    left: 30%;
-    height: 40%;
-    width: 40%;
-
-    background-color: #466f12;
-    border-radius: 25px;
+    top: calc(50vh - 25px);
+    left: calc(50vw - 115px);
+    height: 50px;
+    width: 230px;
     z-index: 10;
-    border: white 1px solid;
-    padding:10px;
     text-align: center;
-    box-shadow: 0px 0px 20px 5px rgba(0,0,0,0.75);
 }
 
 #x {
     position: absolute;
-    top: -5px;
+    top: 0px;
     right: 15px;
     cursor: pointer;
+}
+
+#img-select {
+	width: 0.1px;
+	height: 0.1px;
+	opacity: 0;
+	overflow: hidden;
+	position: absolute;
+	z-index: -1;
+}
+
+#upload-label {
+    border-radius: 10px;
+    font-size: 1.25em;
+    font-weight: 500;
+    background: rgba(183, 245, 175, 0.9);
+    display: inline-block;
+    cursor: pointer;
+}
+
+/*--------------   MAIN --------------*/
+
+#appContainer{
+    padding-top: 50px;
+}
+
+
+#appContainer #profile-pic {
+    height: 200px;
+    width: 200px;
+    display: inline-block;
+}
+
+#white-background-container {
+    background-color: #FFF;
+    margin: 20px 50px 40px 50px;
+    padding: 30px;
+    border-radius: 15px;
+}
+
+button {
+    font-size: 18px;
+    color:inherit;
+    border-radius: 5px;
+    background-color: #b7f5af;
+    padding: 1px 8px;
+    border: none;
+    margin: 5px;
+}
+button:hover {
+    background-color: #96cd8f;
+    cursor: pointer;
+}
+
+#bio-edit-button {
+    display: block;
+}
+
+.profile-container {
+    display: flex;
+    flex-flow: row nowrap;
+}
+
+.profile-text {
+    margin: 50px;
+}
+
+.bio-edit {
+    margin-top: 30px;
+    margin-left: 30px;
+    font-size: 12px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#friendsList {
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: space-around;
+    text-align: center;
+}
+
+#friendsList h2 {
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.friend-request-container{
+}
+
+.user-display-container {
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: space-around;
+    text-align: center;
+}
+
+.friend-request-container button {
+    text-align: center;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#online-now {
+    margin-left: 35px;
+}
+
+#other-profile-container {
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: space-around;
+}
+
+#other-profile-profile{
+    text-align:center;
+    display: inline-block;
+}
+
+#other-profile-friends-container{
+    text-align: center;
+    display: inline-block;
+}
+
+#other-profile-friends {
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: space-around;
+}
+
+#other-profile-friends #profile-pic{
+    width: 100px;
+    height: 100px;
 }
 
 
 /* ------------------  CHAT -------------- */
 
-#chat {
-    margin-bottom: 20px;
+#chat-div {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-between;
+    align-items: flex-start;
 }
+
+/* ------------------  CHAT - NAV -------------- */
+
+#chat-nav {
+    min-height: 70vh;
+    width: 250px;
+    background-color: white;
+    display: inline-block;
+    border: black 1px solid;
+    border-radius: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    margin-right:20px;
+    overflow-y: auto;
+}
+
+.chat-rooms-title, .chat-room:nth-child(even) {
+    background: #b7f5af;
+}
+
+.new-chat-input {
+    margin-top: 10px;
+    margin-bottom: 5px;
+    padding-bottom: 5px;
+    border-bottom: rgb(183, 245, 175) 2px solid;
+}
+.new-chat-button {
+    margin-left: 20px;
+    font-size: 14px;
+}
+
+.chatlist {
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    border-bottom: rgb(183, 245, 175) 2px solid;
+}
+
+.chat-user {
+    display: flex;
+    flex-flow: wrap row;
+    justify-content: flex-start;
+    align-items: center;
+    position: relative;
+}
+
+#msgNotif {
+    position: absolute;
+    width: 15px;
+    height: 15px;
+    top: 1px;
+    left: 22px;
+}
+
+/* ------------------  CHAT - Window -------------- */
+
+#chat {
+    display: inline-block;
+    width: calc(90% - 200px);
+    height: 70vh;
+}
+
 
 #chat-window {
     padding: 5px 0;
-    width: 90vw;
-    height: 40vh;
+    width: 100%;
+    height: 90%;
     background-color: white;
-    border: solid black 2px;
+    border: black 2px solid;
     border-radius: 5px;
     margin-left: auto;
     margin-right: auto;
-    overflow-y: scroll;
+}
+
+#chat-window-content {
+    padding: 0 3px;
+    overflow-y: auto;
+    width: 100%;
+    height: 100%;
 }
 
 #chat-input {
-
-    margin-left: auto;
-    margin-right: auto;
-    width: 80vw;
+    text-align: center;
+    padding: 10px 20px;
 }
 
 #chat-input input {
     padding: 4px;
     width: 85%;
+    display: inline;
+    margin-right: 5px;
 }
+
 #chat-input button{
-    width: 15%;
-    border: none;
-    background: #34d07c;
-    padding: 5px;
+    display: inline;
+    margin-left: 5px;
 }
 
 .message {
@@ -125,9 +478,61 @@ body {
     display: inline-block;
     margin-top: 10px;
     margin-bottom: 5px;
+    margin-right: 5px;
+    border: rgb(183, 245, 175) 0.5px solid;
 }
 
 .chat-text {
     display: inline-block;
     margin-left: 5px;
+}
+
+
+/*---------------- AUTH --------------*/
+#title-wrapper{
+    position:absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background-image: url("/images/school_photo.jpg");
+    background-size: cover;
+}
+#welcome-title{
+    text-align: center;
+    font-size: 29vh;
+    font-family: 'FUTURA';
+    color: rgba(88, 213, 146, 0.95);
+}
+
+.auth-form-container {
+    text-align: center;
+    color: rgba(47, 180, 108, 1);
+    z-index: 10;
+    position: absolute;
+    top: 230px;
+    left: 70px;
+}
+
+.auth-form-container button, a {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.auth-form-container a {
+    display: inline-block;
+    font-size: 18px;
+    color:inherit;
+    border-radius: 5px;
+    background-color: #b7f5af;
+    padding: 1px 8px;
+    border: none;
+    margin: 5px;
+    text-decoration: none;
+}
+.auth-form-container a:hover {
+    background-color: #96cd8f;
+    cursor: pointer;
 }

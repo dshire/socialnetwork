@@ -9,7 +9,9 @@ export const Registration = authWrap(RegistrationForm, '/register');
 export function Welcome(props) {
     return (
         <div>
-            <h1>Welcome to this Social Network!</h1>
+            <div id="title-wrapper">
+                <h1 id="welcome-title" >THIS IS NOT A SOCIAL NETWORK</h1>
+            </div>
             {props.children}
         </div>
     );
@@ -49,33 +51,33 @@ function authWrap(Component, url) {
 
 function LoginForm({ handleChange, submit, error }) {
     return (
-        <div>
-            <h3>Log in</h3>
+        <div className="auth-form-container">
+            <h3>Log In:</h3>
             {error && <div className="error">{error}</div>}
-            <p>Email:</p>
+            <p>Email</p>
             <input required type="email" name="email" onChange= {e => handleChange(e)} />
-            <p>Password:</p>
+            <p>Password</p>
             <input required name="pass" type="password" onChange={e => handleChange(e)} />
-            <button onClick={submit}>Log in</button>
-            <Link to={"/"}>Register now</Link>
+            <button onClick={submit}>Submit</button>
+            <Link to={"/"}>Register</Link>
         </div>
     );
 }
 
 function RegistrationForm({ handleChange, submit, error }) {
     return (
-        <div>
-            <h3>Register</h3>
+        <div className="auth-form-container">
+            <h3>Register:</h3>
             {error && <div className="error">{error}</div>}
-            <p>First Name:</p>
+            <p>First Name</p>
             <input required name="first" onChange= {e => handleChange(e)} />
-            <p>Last Name:</p>
+            <p>Last Name</p>
             <input required name="last" onChange={e => handleChange(e)} />
-            <p>Email:</p>
+            <p>Email</p>
             <input required type="email" name="email" onChange= {e => handleChange(e)} />
-            <p>Password:</p>
+            <p>Password</p>
             <input required name="pass" type="password" onChange={e => handleChange(e)} />
-            <button onClick={submit}>Register</button>
+            <button onClick={submit}>Submit</button>
             <Link to={"/login"}>Log in</Link>
         </div>
     );

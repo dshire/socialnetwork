@@ -5,10 +5,12 @@ import { ProfilePic } from './app'
 
 export function Profile(props) {
     return (
-        <div style={{ width: 'auto', height: '400px' }}>
+        <div className="profile-container">
             <ProfilePic showUploader={props.showUploader} image={props.url + props.pic} first={props.first} last={props.last} />
-            <h2>{props.first} {props.last}</h2>
-            <Bio bio={props.bio} updateBio={props.updateBio} />
+            <div className="profile-text">
+                <h2>{props.first} {props.last}</h2>
+                <Bio bio={props.bio} updateBio={props.updateBio} />
+            </div>
         </div>
     );
 }
@@ -53,11 +55,11 @@ class Bio extends React.Component {
     render(){
         let elem = null;
         if (!this.state.showBioEdit && this.state.bio){
-            elem = <div>{this.state.bio}<p onClick={this.editBio}>Edit bio</p></div>;
+            elem = <div>{this.state.bio}<p className="bio-edit" onClick={this.editBio}>Edit bio</p></div>;
         } else if (!this.state.showBioEdit && !this.state.bio) {
-            elem = <p onClick={this.editBio}>Add bio</p>;
+            elem = <p  onClick={this.editBio}>Add bio</p>;
         } else {
-            elem = <div><textarea name="bio" onChange={this.handleChange} value={this.state.bio} rows="6" cols="50" /><button onClick={this.saveBio}>Save</button></div>;
+            elem = <div><textarea name="bio" onChange={this.handleChange} value={this.state.bio} rows="6" cols="50" /><button id="bio-edit-button" onClick={this.saveBio}>Save</button></div>;
         }
         return(
             <div>

@@ -19,12 +19,12 @@ class Friends extends React.Component {
 
         return (
             <div id="friendsList">
-                <div>
+                <div className="friends-with-container">
                     <h2>People you are friends with:</h2>
                     {friendList}
                     {!friends[0] && <p>No friends! Go ahead and add some!</p>}
                 </div>
-                <div>
+                <div className="friend-request-container">
                     <h2>Pending Friend Requests:</h2>
                     {pendList}
                     {!pending[0] && <p>No Pending Friend Requests!</p>}
@@ -36,8 +36,8 @@ class Friends extends React.Component {
 
 function listFriends(obj, props) {
     return (
-        <div>
-            {obj.map(user => <div><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/><h3>{user.first} {user.last} </h3><button onClick={()=> props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button>{(user.status == 2) && <button onClick={()=> props.reject(user.id)}>Reject Friendship Request</button>}</div>)}
+        <div className="user-display-container" >
+            {obj.map(user => <div><Link to={'user/' + user.id}><img id="profile-pic" src={"http://peppermountain.s3.amazonaws.com/" + user.pic} alt={user.first + ' ' + user.last} title={user.first + ' ' + user.last}/></Link><h3>{user.first} {user.last} </h3><button onClick={()=> props.friendUpdate(user.id, user.status)}>{buttonText(user.status)}</button>{(user.status == 2) && <button onClick={()=> props.reject(user.id)}>Reject Friendship Request</button>}</div>)}
         </div>
     );
 }

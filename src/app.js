@@ -2,6 +2,7 @@ import React from 'react';
 import axios from './axios';
 import { Link } from 'react-router';
 import { getSocket } from './socket';
+import Search from "./search";
 
 
 export class App extends React.Component{
@@ -72,17 +73,26 @@ export class App extends React.Component{
         return(
             <div>
                 <div>
-                    <Logo />
-                    <div>
-                        <ProfilePic showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
-                        {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
+                    <div className="nav-bar" >
+                        <Logo />
                         <Link to={'/friends'}>Friends</Link>
                         <Link to={'/online'}>See who's online!</Link>
-                        <Link to={'/chat'}>Join Chat</Link>
+                        <Link to={'/chat'}>Chat</Link>
+                        <div id="search-container">
+                            <p className="search-users-p">Search Users:</p>
+                            <Search />
+                        </div>
+                        <div className="user-info">
+                            <ProfilePic className="p-pic" showUploader={this.showUploader} image={this.state.url + this.state.pic} first={this.state.first} last={this.state.last} />
+                            {this.state.uploaderShown && <PicLoader uploadProfilePic={e => this.uploadProfilePic(e)} closeUploader={this.closeUploader} error={this.state.error} />}
+                            <Link id="pic-user-name" to={'/'}>{this.state.first} {this.state.last}</Link>
+                        </div>
                     </div>
                 </div>
                 <div id="appContainer">
-                    {children}
+                    <div id="white-background-container">
+                        {children}
+                    </div>
                 </div>
             </div>
         );
@@ -93,9 +103,7 @@ function PicLoader(props) {
     return(
         <div id="shadow" onClick={props.closeUploader}>
             <div id="pic-upload" onClick={ e => e.stopPropagation() }>
-                <h4>Change your Profile Picture?</h4>
-                <p id="x" onClick={props.closeUploader}>x</p>
-                <input type="file" id="img-select" accept="image/*" onChange={e => props.uploadProfilePic(e)} />
+                <label id="upload-label" for="file">Upload a new Profile Picture?<input type="file" name="file" id="img-select" accept="image/*" onChange={e => props.uploadProfilePic(e)} /></label>
                 {props.error && <div className="error">{props.error}</div>}
             </div>
         </div>
@@ -113,8 +121,9 @@ export function ProfilePic(props) {
 
 function Logo() {
     return (
-        <div>
+        <div id="logo-container">
             <img className="logo" src='/images/jollyroger.gif' />
+            <div id="green-bar" ><h1 id="tinasn">T I N A S N</h1></div>
         </div>
     )
 }

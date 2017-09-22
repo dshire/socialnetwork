@@ -1,6 +1,6 @@
 import * as io from 'socket.io-client';
 import axios from './axios';
-import { storeOnlineUsers, storeChatHistory, userJoined, userLeft, newMessage } from './actions';
+import { storeOnlineUsers, storeChatHistory, userJoined, userLeft, newMessage, privateMsg, chatRooms, newRoomMsg, msgNotif } from './actions';
 
 let socket;
 import { store } from './start';
@@ -30,8 +30,18 @@ export function getSocket() {
             store.dispatch(storeChatHistory(data));
         });
         socket.on('newMsg', function(data) {
-            // console.log(data);
             store.dispatch(newMessage(data));
+        });
+        socket.on('privateMsg', function(data){
+            store.dispatch(privateMsg(data));
+            store.dispatch(msgNotif(data.msgNotif));
+        });
+        socket.on('chatRooms', function(data) {
+            console.log(data);
+            store.dispatch(chatRooms(data));
+        });
+        socket.on('newRoomMsg', function(data) {
+            store.dispatch(newRoomMsg(data));
         });
     }
     return socket;

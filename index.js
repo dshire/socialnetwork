@@ -171,6 +171,17 @@ app.get('/api/friends', (req, res) => {
     }
 });
 
+app.get('/api/otherFriends/:id', (req, res) => {
+    if (req.session.user) {
+        db.query(`SELECT users.id, first, last, pic FROM friends JOIN users ON (status = 1 AND rec_id = $1 AND send_id = users.id) OR (status = 1 AND send_id = $1 AND rec_id = users.id)`, [req.params.id]).then((result) => {
+            console.log(result.rows);
+            res.json({
+                friends: result.rows
+            });
+        });
+    }
+});
+
 app.get('/api/user', (req,res) => {
     if (req.session.user){
         res.json({
@@ -301,12 +312,23 @@ app.post('/updatebio', (req, res) => {
     });
 });
 
+app.get('/api/search/:input', (req, res) => {
+    db.query(`SELECT first, last, pic, id FROM users WHERE (first ILIKE ($1)) OR (last ILIKE ($1))`, [req.params.input + "%"]).then((result) => {
+        res.json({
+            searchResults: result.rows
+        });
+    }).catch(function(err) {
+        console.log(err);
+    });
+});
 
 
 // |-----------  SOCKET.IO MAGIC ------------------->
 
-const chatHistory = [];
+const chatHistory = [];  // global variables as cache --> next step: redis implementation
 const loggedInUsers = [];
+const chatRooms = [];
+
 app.get('/connected/:socketId', (req, res) => {
     if (req.session.user){
         if (!loggedInUsers.some(checkOnlineId) && io.sockets.sockets[req.params.socketId]) {
@@ -363,28 +385,147 @@ io.on('connection', function(socket) {
         message: 'Welcome to our server. It is nice to have you here.'
     });
     socket.emit('chat', chatHistory);
+    socket.emit('chatRooms', chatRooms);
 
     socket.on('chatMsg', (msg) => {
+        if(msg.chatId && msg.recId) {
+            console.log('msg.recId is: ' + msg.recId);
+            var index = loggedInUsers.findIndex(user => user.userSocket === socket.id);
+            if (index > -1) {
+                var userId = loggedInUsers[index].userId;
+                var recIndex = loggedInUsers.findIndex(user => user.userId === msg.recId);
+                db.query(`INSERT INTO chats (chat_id, send_id, rec_id, message, date) VALUES ($1, $2, $3, $4, $5)`, [ msg.chatId, userId, msg.recId, msg.message, moment().format('MMM D/YY, h:mm:ss a') ]).catch(function(err) {
+                    console.log(err);
+                });
+
+                console.log(recIndex);
+                console.log(loggedInUsers);
+                if (recIndex > -1 ) {
+                    var recSocket = loggedInUsers[recIndex].userSocket;
+                    db.query(`SELECT * FROM users WHERE id = $1`, [userId]).then((result) => {
+
+                        console.log('recSocket is: ' + result.rows);
+                        io.sockets.sockets[recSocket].emit('privateMsg', {
+                            chatId: msg.chatId,
+                            message: msg.message,
+                            first: result.rows[0].first,
+                            last: result.rows[0].last,
+                            pic: result.rows[0].pic,
+                            id: result.rows[0].id,
+                            date: moment().format('MMM D/YY, h:mm:ss a'),
+                            msgNotif: userId
+                        });
+                        socket.emit('privateMsg', {
+                            chatId: msg.chatId,
+                            message: msg.message,
+                            first: result.rows[0].first,
+                            last: result.rows[0].last,
+                            pic: result.rows[0].pic,
+                            id: result.rows[0].id,
+                            date: moment().format('MMM D/YY, h:mm:ss a')
+                        });
+
+                    }).catch(function(err) {
+                        console.log(err);
+                    });
+                } else {
+                    db.query(`SELECT * FROM users WHERE id = $1`, [userId]).then((result) => {
+                        socket.emit('privateMsg', {
+                            chatId: msg.chatId,
+                            message: msg.message,
+                            first: result.rows[0].first,
+                            last: result.rows[0].last,
+                            pic: result.rows[0].pic,
+                            id: result.rows[0].id,
+                            date: moment().format('MMM D/YY, h:mm:ss a')
+                        });
+
+                    }).catch(function(err) {
+                        console.log(err);
+                    });
+                }
+
+            }
+
+        } else {
+            var index = loggedInUsers.findIndex(user => user.userSocket === socket.id);
+            if (index > -1) {
+                var userId = loggedInUsers[index].userId;
+                db.query(`SELECT * FROM users WHERE id = $1`, [userId]).then((result) => {
+
+                    chatHistory.push({
+                        message: msg.message,
+                        first: result.rows[0].first,
+                        last: result.rows[0].last,
+                        pic: result.rows[0].pic,
+                        id: result.rows[0].id,
+                        date: moment().format('MMM D/YY, h:mm:ss a')
+                    });
+                    if (chatHistory.length > 10) {
+                        chatHistory.splice(0, 1);
+                    }
+
+                    io.emit('newMsg', {
+                        message: msg.message,
+                        first: result.rows[0].first,
+                        last: result.rows[0].last,
+                        pic: result.rows[0].pic,
+                        id: result.rows[0].id,
+                        date: moment().format('MMM D/YY, h:mm:ss a')
+                    });
+
+                }).catch(function(err) {
+                    console.log(err);
+                });
+            }
+        }
+
+    });
+
+
+
+    socket.on('newChat', (chat) => {
+        uidSafe(18).then(function(uid) {
+            var room = 'room' + uid;
+            chatRooms.push({
+                chatName: chat.newChat,
+                id: room,
+                messages: []
+            });
+            socket.emit('chatRooms', chatRooms );
+        });
+    });
+
+    socket.on('joinChat', function(room) {
+        socket.join(room);
+    });
+    socket.on('leaveChat', function(room) {
+        socket.leave(room);
+    });
+
+    socket.on('chatRoomMsg', function(data) {
 
         var index = loggedInUsers.findIndex(user => user.userSocket === socket.id);
         if (index > -1) {
+            var roomIndex = chatRooms.findIndex(e => e.id == data.room);
             var userId = loggedInUsers[index].userId;
             db.query(`SELECT * FROM users WHERE id = $1`, [userId]).then((result) => {
 
-                chatHistory.push({
-                    message: msg,
+                chatRooms[roomIndex].messages.push({
+                    message: data.message,
                     first: result.rows[0].first,
                     last: result.rows[0].last,
                     pic: result.rows[0].pic,
                     id: result.rows[0].id,
                     date: moment().format('MMM D/YY, h:mm:ss a')
                 });
-                if (chatHistory.length > 10) {
-                    chatHistory.splice(0, 1);
+                if (chatRooms[roomIndex].messages.length > 10) {
+                    chatRooms[roomIndex].messages.splice(0, 1);
                 }
 
-                io.emit('newMsg', {
-                    message: msg,
+                io.to(data.room).emit('newRoomMsg', {
+                    room: data.room,
+                    message: data.message,
                     first: result.rows[0].first,
                     last: result.rows[0].last,
                     pic: result.rows[0].pic,
@@ -398,11 +539,52 @@ io.on('connection', function(socket) {
         }
     });
 
-
 });
 
 
 // <-----------  END OF SOCKET.IO MAGIC  -------------------|
+
+app.get('/api/getChat/:id', (req,res) => {
+    db.query(`SELECT first, last, pic, send_id, rec_id, chat_id, message, chats.date FROM users JOIN chats ON users.id = chats.send_id WHERE chats.chat_id = $1`, [req.params.id]).then(function(result){
+        if(result.rows[0] && (result.rows[0].send_id == req.session.user.id || result.rows[0].rec_id == req.session.user.id)) {
+            var recId = '';
+            if (result.rows[0].rec_id == req.session.user.id) {
+                recId = result.rows[0].send_id;
+            } else {
+                recId = result.rows[0].rec_id;
+            }
+            console.log('chatId found: ' + req.params.id);
+            res.json({
+                chatHistory: result.rows,
+                chatId: req.params.id,
+                recId: recId
+            });
+        } else {
+            db.query(`SELECT first, last, pic, send_id, rec_id, chat_id, message, chats.date FROM users JOIN chats ON users.id = chats.send_id WHERE (send_id = $1 AND rec_id = $2) OR (rec_id = $1 AND send_id = $2)`, [ req.params.id, req.session.user.id ]).then((result) => {
+                console.log('chatsessionfound: ' + req.params.id);
+                if (result.rows[0]) {
+                    var recId = '';
+                    if (result.rows[0].rec_id == req.session.user.id) {
+                        recId = result.rows[0].send_id;
+                    } else {
+                        recId = result.rows[0].rec_id;
+                    }
+                    res.json({
+                        chatHistory: result.rows,
+                        chatId: result.rows[0].chat_id,
+                        recId: recId
+                    });
+
+                } else {
+                    uidSafe(18).then(function(uid) {
+                        console.log('chatId sent: ' + uid);
+                        res.json({ chatId: uid, recId: req.params.id });
+                    });
+                }
+            });
+        }
+    });
+});
 
 
 app.get('*', function(req, res) {
